@@ -1,14 +1,55 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="ion-padding">
 
-<ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  <ion-item color="dark">
+    <ion-label>Duration</ion-label>
+    <ion-datetime
+      display-format="mm:ss"
+      placeholder="Tap here"
+      [(ngModel)]="fullTime"
+      minuteValues="0,1,2,3,4,5"
+    ></ion-datetime>
+  </ion-item>
+
+  <circle-progress (click)="startTimer()"
+    [percent]="percent"
+    [maxPercent]="100"
+    [radius]="radius"
+    [outerStrokeWidth]="16"
+    [outerStrokeColor]="'#21D4FD'"
+    [outerStrokeLinecap]="'butt'"
+    [subtitle]="'Remaining Time'"
+    [titleFontSize]="'28'"
+    [units]="''"
+    [titleFormat]="titleFormat.bind(this)"
+    [subtitleFontSize]="'12'"
+    [showZeroOuterStroke]="false"
+    [backgroundStroke]="'#222'"
+    [backgroundStrokeWidth]="1"
+    [outerStrokeGradient]="true"
+    [outerStrokeGradientStopColor]="'#B721FF'"
+    [animation]="false"
+    [animationDuration]="300"
+    [showInnerStroke]="false"
+  ></circle-progress>
+  <div class="sets">Sets: {{sets}}
+    <ion-button size="small" fill="outline" (click)="resetSets()">
+      reset
+    </ion-button>
   </div>
+
+  <p>{{ elapsed.h }}:{{elapsed.m}}:{{elapsed.s}}</p>
+
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+    <ng-container *ngIf="timer == false; else running">
+      <ion-fab-button (click)="startTimer()">
+        <ion-icon name="play" class="play-icon"></ion-icon>
+      </ion-fab-button>
+    </ng-container>
+    <ng-template #running>
+      <ion-fab-button (click)="stopTime()">
+        <ion-icon name="square"></ion-icon>
+      </ion-fab-button>
+    </ng-template>
+  </ion-fab>
+
 </ion-content>

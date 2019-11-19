@@ -1,1 +1,23 @@
+p {
+  font-size: 3em;
+  color: #565656;
+  width: 100%;
+  text-align: center;
+}
 
+.sets{
+  color: #A9A9A9;
+  text-align: center;
+}
+ion-button{
+  font-size: 10px;
+  vertical-align: middle;
+  color: #a9a9a9;
+  margin-top: 1px;
+  --border-color: #a9a9a9;
+  --border-width: 1px;
+  --padding-top: 1px;
+}
+.play-icon{
+  padding-left: 3px;
+}
