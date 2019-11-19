@@ -9,6 +9,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
+import {NativeAudio} from '@ionic-native/native-audio/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -17,6 +18,7 @@ import { Insomnia } from '@ionic-native/insomnia/ngx';
   providers: [
     StatusBar,
     SplashScreen,
+      NativeAudio,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Insomnia
   ],

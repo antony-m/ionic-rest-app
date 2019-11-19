@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import {Platform} from '@ionic/angular';
+import { NativeAudio } from '@ionic-native/native-audio/ngx';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,14 @@ export class HomePage {
 
   overallTimer: any = false;
 
-  constructor(public platform: Platform, private insomnia: Insomnia) {}
+  constructor(public platform: Platform, private insomnia: Insomnia, private nativeAudio: NativeAudio) {
+    this.platform.ready().then(() => {
+      this.nativeAudio.preloadSimple('uniqId', 'assets/audio/bell-ring.mp3').then(() => {
+      }, (error) => {
+          console.log(error);
+      });
+    });
+  }
 
   ionViewDidEnter() {
     this.subscription = this.platform.backButton.subscribeWithPriority(0, () => {
@@ -78,6 +86,7 @@ export class HomePage {
 
       if (this.percent >= this.radius) {
         clearInterval(this.timer);
+        this.nativeAudio.play('uniqId');
       }
       this.progress++;
       this.percent = (this.progress / totalSeconds) * 100;
