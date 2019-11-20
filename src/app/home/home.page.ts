@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import {Platform} from '@ionic/angular';
 import { NativeAudio } from '@ionic-native/native-audio/ngx';
@@ -8,7 +8,7 @@ import { NativeAudio } from '@ionic-native/native-audio/ngx';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements AfterViewInit, OnDestroy {
   percent = 0;
   radius = 100;
   fullTime = '00:02:00';
@@ -36,17 +36,15 @@ export class HomePage {
     });
   }
 
-  ionViewDidEnter() {
-    this.subscription = this.platform.backButton.subscribeWithPriority(0, () => {
-      if (this.constructor.name === 'HomePage') {
-        if (window.confirm('Are you sure you want to quit?')) {
-          (navigator as any).app.exitApp();
-        }
+  ngAfterViewInit() {
+    this.subscription = this.platform.backButton.subscribe(() => {
+      if (window.confirm('Are you sure you want to quit?')) {
+        (navigator as any).app.exitApp();
       }
     });
   }
 
-  ionViewWillLeave() {
+  ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
