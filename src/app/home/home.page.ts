@@ -1,23 +1,39 @@
-import {AfterViewInit, Component, OnDestroy} from '@angular/core';
-import { Insomnia } from '@ionic-native/insomnia/ngx';
-import {Platform} from '@ionic/angular';
-import { NativeAudio } from '@ionic-native/native-audio/ngx';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Insomnia} from '@ionic-native/insomnia/ngx';
+import {IonRouterOutlet, ModalController, Platform} from '@ionic/angular';
+import {NativeAudio} from '@ionic-native/native-audio/ngx';
+import {SettingsComponent} from '../settings/settings.component';
+import {defaultSettings} from '../settings/defaultSettings';
+import {ScreenOrientation} from '@ionic-native/screen-orientation/ngx';
+import {gradients} from '../settings/gradients';
+import { Storage } from '@ionic/storage';
+import {HistoryComponent} from '../history/history.component';
+
+const INITIAL_SUBTITLE = 'Tap to start/reset timer';
+const TIMER_SUBTITLE = 'Remaining Time';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements AfterViewInit, OnDestroy {
+export class HomePage implements AfterViewInit, OnDestroy, OnInit {
+  @ViewChild(IonRouterOutlet, null) routerOutlet: IonRouterOutlet;
   percent = 0;
   radius = 100;
-  fullTime = '00:02:00';
   timer: any = false;
   progress = 0;
   sets = 0;
-  minutes: any = 1;
-  seconds: any = 30;
+  minutes: any;
+  seconds: any;
   subscription: any;
+  subtitle = INITIAL_SUBTITLE;
+  settings = {...defaultSettings};
+  history = [];
+  outerStrokeColor: any;
+  outerStrokeGradientStopColor: any;
+  title: string;
+  totalSeconds: number;
 
   elapsed: any = {
     h: '00',
@@ -27,19 +43,53 @@ export class HomePage implements AfterViewInit, OnDestroy {
 
   overallTimer: any = false;
 
-  constructor(public platform: Platform, private insomnia: Insomnia, private nativeAudio: NativeAudio) {
+  constructor(public platform: Platform,
+              private insomnia: Insomnia,
+              private nativeAudio: NativeAudio,
+              public modalController: ModalController,
+              private screenOrientation: ScreenOrientation,
+              private storage: Storage) {
     this.platform.ready().then(() => {
+      // add reading from device memory
+      this.storage.get('restAppSettings').then((val) => {
+        if (val) {
+          this.settings = JSON.parse(val);
+        } else {
+          this.settings = {...defaultSettings};
+        }
+        this.setGradients();
+      });
+      this.storage.get('restAppHistory').then((val) => {
+        if (val) {
+          this.history = JSON.parse(val);
+        }
+      });
+      // set to portrait
+      this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
       this.nativeAudio.preloadSimple('uniqId', 'assets/audio/bell-ring.mp3').then(() => {
       }, (error) => {
-          console.log(error);
+        console.log(error);
       });
     });
   }
 
+  ngOnInit() {
+    this.title = this.getTitle();
+    this.totalSeconds = this.getTotalSeconds();
+  }
+
   ngAfterViewInit() {
-    this.subscription = this.platform.backButton.subscribe(() => {
+    this.subscription = this.platform.backButton.subscribeWithPriority(0, () => {
       if (window.confirm('Are you sure you want to quit?')) {
         (navigator as any).app.exitApp();
+        this.storage.set('restAppSettings', JSON.stringify(this.settings));
+        if (this.getElapsedTime() > 0) {
+          this.history.push({
+            date: new Date(),
+            trainingTime: `${this.elapsed.h}:${this.elapsed.m}:${this.elapsed.s}`
+          });
+        }
+        this.storage.set('restAppHistory', JSON.stringify(this.history));
       }
     });
   }
@@ -48,18 +98,45 @@ export class HomePage implements AfterViewInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  titleFormat() {
-    const timeSplit = this.fullTime.split(':');
-    this.minutes = timeSplit[1];
-    this.seconds = timeSplit[2];
+  setGradients() {
+    this.outerStrokeColor = this.getGradientsProperty('outerStrokeColor');
+    this.outerStrokeGradientStopColor = this.getGradientsProperty('outerStrokeGradientStopColor');
+  }
 
-    const progress = this.progress;
-    const totalSeconds = Math.floor(this.minutes * 60) + parseInt(this.seconds, 10);
-    const remaining = totalSeconds - progress < 0 ? 0 : totalSeconds - progress;
+  getGradientsProperty(property) {
+    return gradients.find((gradient) =>
+      gradient.name === this.settings.circleColor)[property];
+  }
+
+  getElapsedTime() {
+    return Number(this.elapsed.h)
+      + Number(this.elapsed.m)
+      + Number(this.elapsed.s);
+  }
+
+  onChangeRestTime(e: string) {
+    this.settings.fullTime = e;
+    if (this.timer) {
+      this.startTimer();
+    }
+    this.title = this.getTitle();
+  }
+
+  getTitle() {
+    this.totalSeconds = this.getTotalSeconds();
+    const remaining = this.totalSeconds - this.progress < 0 ? 0 : this.totalSeconds - this.progress;
     return remaining + 's';
   }
 
+  getTotalSeconds() {
+    const timeSplit = this.settings.fullTime.split(':');
+    this.minutes = timeSplit[1];
+    this.seconds = timeSplit[2];
+    return Math.floor(this.minutes * 60) + parseInt(this.seconds, 10);
+  }
+
   startTimer() {
+    this.subtitle = TIMER_SUBTITLE;
     this.sets++;
     if (this.timer) {
       clearInterval(this.timer);
@@ -74,20 +151,19 @@ export class HomePage implements AfterViewInit, OnDestroy {
     this.percent = 0;
     this.progress = 0;
 
-    const timeSplit = this.fullTime.split(':');
-    this.minutes = timeSplit[1];
-    this.seconds = timeSplit[2];
-
-    const totalSeconds = Math.floor(this.minutes * 60) + parseInt(this.seconds, 10);
+    this.totalSeconds = this.getTotalSeconds();
+    this.title = this.getTitle();
 
     this.timer = setInterval(() => {
-
+      this.progress++;
+      this.percent = (this.progress / this.totalSeconds) * 100;
+      this.title = this.getTitle();
       if (this.percent >= this.radius) {
         clearInterval(this.timer);
-        this.nativeAudio.play('uniqId');
+        if (this.settings.soundEnabled) {
+          this.nativeAudio.play('uniqId');
+        }
       }
-      this.progress++;
-      this.percent = (this.progress / totalSeconds) * 100;
     }, 1000);
   }
 
@@ -109,7 +185,9 @@ export class HomePage implements AfterViewInit, OnDestroy {
 
   pad(num, size) {
     let s = num + '';
-    while (s.length < size) { s = '0' + s; }
+    while (s.length < size) {
+      s = '0' + s;
+    }
     return s;
   }
 
@@ -119,6 +197,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
 
   stopTime() {
     if (window.confirm('Are you sure you want to reset training?')) {
+      this.subtitle = INITIAL_SUBTITLE;
       this.sets = 0;
       clearInterval(this.timer);
       clearInterval(this.overallTimer);
@@ -131,7 +210,43 @@ export class HomePage implements AfterViewInit, OnDestroy {
         m: '00',
         s: '00'
       };
+      this.title = this.getTitle();
       this.insomnia.allowSleepAgain();
     }
+  }
+
+  showSettingsModal() {
+    this.presentSettingsModal().then(() => {
+    });
+  }
+
+  async presentSettingsModal() {
+    const modal = await this.modalController.create({
+      component: SettingsComponent,
+      componentProps: {
+        settings: this.settings,
+        setGradients: this.setGradients.bind(this)
+      }
+    });
+
+    await modal.present().then(() => {
+    });
+  }
+
+  showHistoryModal() {
+    this.presentHistoryModal().then(() => {
+    });
+  }
+
+  async presentHistoryModal() {
+    const modal = await this.modalController.create({
+      component: HistoryComponent,
+      componentProps: {
+        history: this.history
+      }
+    });
+
+    await modal.present().then(() => {
+    });
   }
 }

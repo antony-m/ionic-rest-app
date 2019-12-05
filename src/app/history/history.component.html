@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-item color="dark">
+    <ion-label>History</ion-label>
+  </ion-item>
+</ion-header>
+<ion-content fullscreen [scrollEvents]="true" class="settings-list">
+    <ion-list-header *ngFor="let record of history" color="dark">
+      <ion-label>
+        {{record.date | date }}
+      </ion-label>
+      <div class="training-time">
+        {{record.trainingTime}}
+      </div>
+    </ion-list-header>
+    <ion-list-header color="dark" *ngIf="history.length === 0">
+      No records found...
+    </ion-list-header>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+      <ion-button color="dark" class="clear-history" (click)="onClickClear()">
+        Clear history
+      </ion-button>
+      <ion-icon class="close-icon" name="close" (click)="close()"></ion-icon>
+  </ion-toolbar>
+</ion-footer>

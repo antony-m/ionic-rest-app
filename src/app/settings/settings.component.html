@@ -1,0 +1,53 @@
+<ion-content fullscreen>
+  <ion-list class="settings-list">
+    <ion-item color="dark">
+      <ion-label>Settings</ion-label>
+    </ion-item>
+    <ion-list-header color="dark">
+      <ion-label>Sound</ion-label>
+    </ion-list-header>
+    <ion-item color="dark">
+      <ion-label>{{this.settings.soundEnabled ? 'ON' : 'OFF'}}</ion-label>
+      <ion-toggle
+          slot="start"
+          name="soundEnabled"
+          checked="this.settings.soundEnabled"
+          [(ngModel)]="this.settings.soundEnabled"
+          (ngModelChange)="this.settings.soundEnabled != this.settings.soundEnabled"></ion-toggle>
+    </ion-item>
+    <ion-list-header color="dark">
+      <ion-label>Direction</ion-label>
+    </ion-list-header>
+    <ion-item color="dark">
+      <ion-label>{{this.settings.clockwise ? 'Clockwise' : 'Counterclockwise'}}</ion-label>
+      <ion-toggle
+          slot="start"
+          name="Clockwise"
+          checked="this.settings.clockwise"
+          [(ngModel)]="this.settings.clockwise"
+          (ngModelChange)="this.settings.clockwise != this.settings.clockwise"></ion-toggle>
+    </ion-item>
+    <ion-radio-group [(ngModel)]="this.settings.circleColor" (ngModelChange)="onChangeColor()" >
+      <ion-list-header color="dark">
+        <ion-label>Circle color</ion-label>
+      </ion-list-header>
+
+      <ion-item *ngFor="let gradient of gradients" color="dark">
+        <ion-label>{{gradient.name}}</ion-label>
+        <div class="gradient-example"
+             [ngStyle]="{'background-image':'linear-gradient(to right,'+gradient.outerStrokeColor+
+              ','+gradient.outerStrokeGradientStopColor+')'}"></div>
+        <ion-radio slot="start"
+                   name="circleColor"
+                   [value]="gradient.name"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+      <ion-button color="dark" class="restore-defaults" (click)="onClickRestoreDefaults()">
+          Restore Defaults
+      </ion-button>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-icon class="close-icon" name="close" (click)="close()"></ion-icon>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,21 @@
+@import '../home/home.page';
+
+.ion-color-dark {
+  ion-icon {
+    color: #a9a9a9;
+  }
+}
+
+.gradient-example{
+  width: 40%;
+  height: 60%;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+.restore-defaults{
+  font-size: 14px;
+  text-transform: none;
+  font-family: 'Roboto Mono', serif;
+  margin-left: 5px;
+  margin-top: 15px;
+}

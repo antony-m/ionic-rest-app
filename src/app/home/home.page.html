@@ -1,11 +1,11 @@
-<ion-content class="ion-padding">
-
+<ion-content>
   <ion-item color="dark">
-    <ion-label>Duration</ion-label>
-    <ion-datetime
+    <ion-label class="datetime-label">Duration</ion-label>
+    <ion-datetime class="datetime-text"
       display-format="mm:ss"
       placeholder="Tap here"
-      [(ngModel)]="fullTime"
+      [(ngModel)]="settings.fullTime"
+      (ngModelChange)="onChangeRestTime($event)"
       minuteValues="0,1,2,3,4,5"
     ></ion-datetime>
   </ion-item>
@@ -15,21 +15,25 @@
     [maxPercent]="100"
     [radius]="radius"
     [outerStrokeWidth]="16"
-    [outerStrokeColor]="'#21D4FD'"
+    [outerStrokeColor]="outerStrokeColor"
     [outerStrokeLinecap]="'butt'"
-    [subtitle]="'Remaining Time'"
+    [subtitle]="subtitle"
     [titleFontSize]="'28'"
     [units]="''"
-    [titleFormat]="titleFormat.bind(this)"
+    [title]="title"
     [subtitleFontSize]="'12'"
     [showZeroOuterStroke]="false"
     [backgroundStroke]="'#222'"
     [backgroundStrokeWidth]="1"
     [outerStrokeGradient]="true"
-    [outerStrokeGradientStopColor]="'#B721FF'"
-    [animation]="false"
-    [animationDuration]="300"
+    [outerStrokeGradientStopColor]="outerStrokeGradientStopColor"
+    [animation]="true"
+    [startFromZero]="false"
+    [animationDuration]="1000"
+    [animateTitle]="true"
     [showInnerStroke]="false"
+    [totalSeconds]="totalSeconds"
+    [clockwise]="settings.clockwise"
   ></circle-progress>
   <div class="sets">Sets: {{sets}}
     <ion-button size="small" fill="outline" (click)="resetSets()">
@@ -50,6 +54,16 @@
         <ion-icon name="square"></ion-icon>
       </ion-fab-button>
     </ng-template>
+  </ion-fab>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="dark" size="small" (click)="showSettingsModal()">
+      <ion-icon name="settings"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button color="dark" size="small" (click)="showHistoryModal()">
+      <ion-icon name="list"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
 
 </ion-content>
