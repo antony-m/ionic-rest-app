@@ -9,8 +9,12 @@
   font-family: 'Roboto Mono', serif;
 }
 
-.close-icon{
-  position: absolute;
-  right: 0;
-  bottom: 5px;
+.history-wrapper{
+  height: 100%;
+  background: #222428;
+}
+
+ion-content {
+  --padding-top: var(--ion-padding, 0px);
+  --padding-bottom: var(--ion-padding, 0px);
 }

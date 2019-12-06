@@ -1,8 +1,10 @@
-<ion-content fullscreen>
-  <ion-list class="settings-list">
-    <ion-item color="dark">
-      <ion-label>Settings</ion-label>
-    </ion-item>
+<ion-header>
+  <ion-item color="dark">
+    <ion-label>Settings</ion-label>
+  </ion-item>
+</ion-header>
+<ion-content [scrollEvents]="true" class="settings-list">
+  <div class="settings-wrapper">
     <ion-list-header color="dark">
       <ion-label>Sound</ion-label>
     </ion-list-header>
@@ -27,27 +29,28 @@
           [(ngModel)]="this.settings.clockwise"
           (ngModelChange)="this.settings.clockwise != this.settings.clockwise"></ion-toggle>
     </ion-item>
-    <ion-radio-group [(ngModel)]="this.settings.circleColor" (ngModelChange)="onChangeColor()" >
+    <ion-radio-group [(ngModel)]="this.settings.circleColor" (ngModelChange)="onChangeColor()">
       <ion-list-header color="dark">
         <ion-label>Circle color</ion-label>
       </ion-list-header>
-
       <ion-item *ngFor="let gradient of gradients" color="dark">
         <ion-label>{{gradient.name}}</ion-label>
         <div class="gradient-example"
              [ngStyle]="{'background-image':'linear-gradient(to right,'+gradient.outerStrokeColor+
-              ','+gradient.outerStrokeGradientStopColor+')'}"></div>
+            ','+gradient.outerStrokeGradientStopColor+')'}"></div>
         <ion-radio slot="start"
                    name="circleColor"
                    [value]="gradient.name"></ion-radio>
       </ion-item>
     </ion-radio-group>
-      <ion-button color="dark" class="restore-defaults" (click)="onClickRestoreDefaults()">
-          Restore Defaults
-      </ion-button>
-  </ion-list>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-icon class="close-icon" name="close" (click)="close()"></ion-icon>
-  </ion-fab>
+  </div>
 </ion-content>
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-button color="dark" class="restore-defaults" (click)="onClickRestoreDefaults()">
+      Restore Defaults
+    </ion-button>
+    <ion-icon class="close-icon" name="close" (click)="close()"></ion-icon>
+  </ion-toolbar>
+</ion-footer>
+

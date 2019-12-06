@@ -50,6 +50,9 @@ ion-label.datetime-label {
 }
 
 .close-icon {
+  position: absolute;
+  right: -5px;
+  bottom: 0;
   color: #a9a9a9;
   padding: 10px 15px;
   width: 28px;
@@ -81,3 +84,16 @@ ion-title {
 ion-list-header{
   text-transform: none;
 }
+
+ion-header {
+  padding-top: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+ion-footer {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 16px;
+}
+

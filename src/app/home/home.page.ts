@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {Insomnia} from '@ionic-native/insomnia/ngx';
 import {IonRouterOutlet, ModalController, Platform} from '@ionic/angular';
 import {NativeAudio} from '@ionic-native/native-audio/ngx';
@@ -17,7 +17,7 @@ const TIMER_SUBTITLE = 'Remaining Time';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements AfterViewInit, OnDestroy, OnInit {
+export class HomePage implements AfterViewInit, OnDestroy {
   @ViewChild(IonRouterOutlet, null) routerOutlet: IonRouterOutlet;
   percent = 0;
   radius = 100;
@@ -57,7 +57,7 @@ export class HomePage implements AfterViewInit, OnDestroy, OnInit {
         } else {
           this.settings = {...defaultSettings};
         }
-        this.setGradients();
+        this.initSettings();
       });
       this.storage.get('restAppHistory').then((val) => {
         if (val) {
@@ -73,7 +73,8 @@ export class HomePage implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
-  ngOnInit() {
+  initSettings() {
+    this.setGradients();
     this.title = this.getTitle();
     this.totalSeconds = this.getTotalSeconds();
   }

@@ -6,6 +6,16 @@
   }
 }
 
+ion-content {
+  --padding-top: var(--ion-padding, 0px);
+  --padding-bottom: var(--ion-padding, 0px);
+}
+
+.settings-wrapper{
+  height: 100%;
+  background: #222428;
+}
+
 .gradient-example{
   width: 40%;
   height: 60%;
@@ -13,9 +23,8 @@
   margin-right: 10px;
 }
 .restore-defaults{
+  padding-left: 14px;
   font-size: 14px;
   text-transform: none;
   font-family: 'Roboto Mono', serif;
-  margin-left: 5px;
-  margin-top: 15px;
 }
