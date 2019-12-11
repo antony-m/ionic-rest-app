@@ -13,7 +13,9 @@ export class HistoryComponent implements OnInit {
   ngOnInit() {}
 
   onClickClear() {
-    this.history.length = 0;
+    if (this.history.length > 0 && window.confirm('Are you sure you want to clear history?')) {
+      this.history.length = 0;
+    }
   }
 
   @HostListener('document:ionBackButton', ['$event'])

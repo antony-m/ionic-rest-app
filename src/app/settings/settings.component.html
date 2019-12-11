@@ -5,18 +5,23 @@
 </ion-header>
 <ion-content [scrollEvents]="true" class="settings-list">
   <div class="settings-wrapper">
-    <ion-list-header color="dark">
-      <ion-label>Sound</ion-label>
-    </ion-list-header>
-    <ion-item color="dark">
-      <ion-label>{{this.settings.soundEnabled ? 'ON' : 'OFF'}}</ion-label>
-      <ion-toggle
-          slot="start"
-          name="soundEnabled"
-          checked="this.settings.soundEnabled"
-          [(ngModel)]="this.settings.soundEnabled"
-          (ngModelChange)="this.settings.soundEnabled != this.settings.soundEnabled"></ion-toggle>
-    </ion-item>
+    <ion-radio-group [(ngModel)]="this.settings.mode">
+      <ion-list-header color="dark">
+        <ion-label>Mode</ion-label>
+      </ion-list-header>
+      <ion-item color="dark">
+        <ion-label>Draw from full to empty</ion-label>
+        <ion-radio slot="start"
+                   name="mode"
+                   [value]="'subtract'"></ion-radio>
+      </ion-item>
+      <ion-item color="dark">
+        <ion-label>Draw from empty to full</ion-label>
+        <ion-radio slot="start"
+                   name="mode"
+                   [value]="'add'"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
     <ion-list-header color="dark">
       <ion-label>Direction</ion-label>
     </ion-list-header>
@@ -43,6 +48,18 @@
                    [value]="gradient.name"></ion-radio>
       </ion-item>
     </ion-radio-group>
+    <ion-list-header color="dark">
+      <ion-label>Sound</ion-label>
+    </ion-list-header>
+    <ion-item color="dark">
+      <ion-label>{{this.settings.soundEnabled ? 'ON' : 'OFF'}}</ion-label>
+      <ion-toggle
+          slot="start"
+          name="soundEnabled"
+          checked="this.settings.soundEnabled"
+          [(ngModel)]="this.settings.soundEnabled"
+          (ngModelChange)="this.settings.soundEnabled != this.settings.soundEnabled"></ion-toggle>
+    </ion-item>
   </div>
 </ion-content>
 <ion-footer>

@@ -64,6 +64,7 @@ export interface CircleProgressOptionsInterface {
   showZeroOuterStroke?: boolean;
   lazy?: boolean;
   totalSeconds?: number;
+  mode?: string;
 }
 
 export class CircleProgressOptions implements CircleProgressOptionsInterface {
@@ -87,10 +88,10 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
   unitsColor = '#444444';
   outerStrokeGradient = false;
   outerStrokeWidth = 8;
-  outerStrokeColor = '#78C000';
+  outerStrokeColor = '#000';
   outerStrokeGradientStopColor = 'transparent';
   outerStrokeLinecap = 'round';
-  innerStrokeColor = '#C7E596';
+  innerStrokeColor = '#000';
   innerStrokeWidth = 4;
   titleFormat = undefined;
   title: string | Array<String> = 'auto';
@@ -121,6 +122,7 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
   showZeroOuterStroke = true;
   lazy = false;
   totalSeconds = 0;
+  mode = 'add';
 }
 
 /** @dynamic Prevent compiling error when using type `Document` https://github.com/angular/angular/issues/20351 */
@@ -287,6 +289,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
   @Input() lazy: boolean;
 
   @Input() totalSeconds: number;
+  @Input() mode: string;
 
   @Input('options') templateOptions: CircleProgressOptions;
 
@@ -352,19 +355,22 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
     // the start point of the arc
     let startPoint = {x: centre.x, y: centre.y - this.options.radius};
     // get the end point of the arc
-    let endPoint = this.polarToCartesian(centre.x, centre.y, this.options.radius, 360 * (this.options.clockwise ?
+
+    const clockwise = this.options.mode === 'subtract' ? !this.options.clockwise : this.options.clockwise;
+
+    let endPoint = this.polarToCartesian(centre.x, centre.y, this.options.radius, 360 * (clockwise ?
       circlePercent :
       (100 - circlePercent)) / 100);  // ####################
     // We'll get an end point with the same [x, y] as the start point when percent is 100%, so move x a little bit.
     if (circlePercent === 100) {
-      endPoint.x = endPoint.x + (this.options.clockwise ? -0.01 : +0.01);
+      endPoint.x = endPoint.x + (clockwise ? -0.01 : +0.01);
     }
     // largeArcFlag and sweepFlag
     let largeArcFlag: any, sweepFlag: any;
     if (circlePercent > 50) {
-      [largeArcFlag, sweepFlag] = this.options.clockwise ? [1, 1] : [1, 0];
+      [largeArcFlag, sweepFlag] = clockwise ? [1, 1] : [1, 0];
     } else {
-      [largeArcFlag, sweepFlag] = this.options.clockwise ? [0, 1] : [0, 0];
+      [largeArcFlag, sweepFlag] = clockwise ? [0, 1] : [0, 0];
     }
     // percent may not equal the actual percent
     let titlePercent = this.options.animateTitle ? percent : this.options.percent;
@@ -512,7 +518,8 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
   };
   getAnimationParameters = (previousPercent: number, currentPercent: number) => {
     let step: number, interval: number;
-    let fromPercent = this.options.startFromZero ? 0 : (previousPercent < 0 ? 0 : previousPercent);
+    let startingPoint = this.options.mode === 'add' ? 0 : 100;
+    let fromPercent = this.options.startFromZero ? startingPoint : (previousPercent < 0 ? 0 : previousPercent);
     let toPercent = currentPercent < 0 ? 0 : this.min(currentPercent, this.options.maxPercent);
     let delta = Math.abs(toPercent - fromPercent);
     // console.log(delta);
@@ -536,7 +543,8 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
     if (this._timerSubscription && !this._timerSubscription.closed) {
       this._timerSubscription.unsubscribe();
     }
-    let fromPercent = this.options.startFromZero ? 0 : previousPercent;
+    let startingPoint = this.options.mode === 'add' ? 0 : 100;
+    let fromPercent = this.options.startFromZero ? startingPoint : previousPercent;
     let toPercent = currentPercent;
     let {step: step, interval: interval} = this.getAnimationParameters(fromPercent, toPercent);
     let count = fromPercent;
@@ -544,12 +552,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
       this._timerSubscription = timer(0, interval).subscribe(() => {
         count += step;
         if (count <= toPercent) {
-          if (!this.options.animateTitle && !this.options.animateSubtitle && count >= 100) {
-            this.draw(toPercent);
-            this._timerSubscription.unsubscribe();
-          } else {
-            this.draw(count);
-          }
+          this.draw(this.options.mode === 'add' ? count : toPercent);
         } else {
           this.draw(toPercent);
           this._timerSubscription.unsubscribe();
@@ -559,12 +562,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
       this._timerSubscription = timer(0, interval).subscribe(() => {
         count -= step;
         if (count >= toPercent) {
-          if (!this.options.animateTitle && !this.options.animateSubtitle && toPercent >= 100) {
-            this.draw(toPercent);
-            this._timerSubscription.unsubscribe();
-          } else {
-            this.draw(toPercent);
-          }
+          this.draw(this.options.mode === 'add' ? toPercent : count);
         } else {
           this.draw(toPercent);
           this._timerSubscription.unsubscribe();

@@ -28,12 +28,12 @@
     [outerStrokeGradient]="true"
     [outerStrokeGradientStopColor]="outerStrokeGradientStopColor"
     [animation]="true"
-    [startFromZero]="false"
+    [startFromZero]="startFromZero"
     [animationDuration]="1000"
-    [animateTitle]="true"
     [showInnerStroke]="false"
     [totalSeconds]="totalSeconds"
     [clockwise]="settings.clockwise"
+    [mode]="settings.mode"
   ></circle-progress>
   <div class="sets">Sets: {{sets}}
     <ion-button size="small" fill="outline" (click)="resetSets()">

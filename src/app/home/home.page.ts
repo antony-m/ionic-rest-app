@@ -34,6 +34,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
   outerStrokeGradientStopColor: any;
   title: string;
   totalSeconds: number;
+  startFromZero = false;
 
   elapsed: any = {
     h: '00',
@@ -77,6 +78,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
     this.setGradients();
     this.title = this.getTitle();
     this.totalSeconds = this.getTotalSeconds();
+    this.percent = this.getPercent();
   }
 
   ngAfterViewInit() {
@@ -109,6 +111,10 @@ export class HomePage implements AfterViewInit, OnDestroy {
       gradient.name === this.settings.circleColor)[property];
   }
 
+  getPercent() {
+    return this.settings.mode === 'add' ? 0 : 100;
+  }
+
   getElapsedTime() {
     return Number(this.elapsed.h)
       + Number(this.elapsed.m)
@@ -137,7 +143,10 @@ export class HomePage implements AfterViewInit, OnDestroy {
   }
 
   startTimer() {
+    this.startFromZero = true;
     this.subtitle = TIMER_SUBTITLE;
+    this.progress = 0;
+    this.title = this.getTitle();
     this.sets++;
     if (this.timer) {
       clearInterval(this.timer);
@@ -149,18 +158,25 @@ export class HomePage implements AfterViewInit, OnDestroy {
     }
 
     this.timer = false;
-    this.percent = 0;
-    this.progress = 0;
+    this.progress = 1;
+    this.percent = this.settings.mode === 'add' ?
+      (this.progress / this.totalSeconds) * 100 : 100 - (this.progress / this.totalSeconds) * 100;
 
     this.totalSeconds = this.getTotalSeconds();
-    this.title = this.getTitle();
 
     this.timer = setInterval(() => {
-      this.progress++;
-      this.percent = (this.progress / this.totalSeconds) * 100;
       this.title = this.getTitle();
-      if (this.percent >= this.radius) {
+      this.progress++;
+      this.startFromZero = false;
+      this.percent = this.settings.mode === 'add' ?
+        (this.progress / this.totalSeconds) * 100 : 100 - (this.progress / this.totalSeconds) * 100;
+      if (this.percent === 0) {
+        this.percent = 0.0000001;
+      }
+      if ((this.percent > this.radius && this.settings.mode === 'add') ||
+        (this.percent < 0 && this.settings.mode === 'subtract')) {
         clearInterval(this.timer);
+
         if (this.settings.soundEnabled) {
           this.nativeAudio.play('uniqId');
         }
@@ -204,7 +220,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
       clearInterval(this.overallTimer);
       this.overallTimer = false;
       this.timer = false;
-      this.percent = 0;
+      this.percent = this.getPercent();
       this.progress = 0;
       this.elapsed = {
         h: '00',
@@ -226,12 +242,18 @@ export class HomePage implements AfterViewInit, OnDestroy {
       component: SettingsComponent,
       componentProps: {
         settings: this.settings,
-        setGradients: this.setGradients.bind(this)
+        setGradients: this.setGradients.bind(this),
       }
     });
 
     await modal.present().then(() => {
     });
+
+    await modal.onWillDismiss();
+    this.title = this.getTitle();
+    if (!this.timer) {
+      this.percent = this.getPercent();
+    }
   }
 
   showHistoryModal() {
