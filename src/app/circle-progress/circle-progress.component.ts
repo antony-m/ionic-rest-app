@@ -467,7 +467,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
       viewBox: `0 0 ${boxSize} ${boxSize}`,
       // Set both width and height to '100%' if it's responsive
       width: this.options.responsive ? '100%' : boxSize,
-      height: this.options.responsive ? '50%' : boxSize,
+      height: this.options.responsive ? '60%' : boxSize,
       backgroundCircle: {
         cx: centre.x,
         cy: centre.y,
